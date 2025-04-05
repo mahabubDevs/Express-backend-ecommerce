@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please provide a password"],
         minlength: 6,
-        select: false,
+        // select: false,
     },
     role: {
         type: String,
@@ -92,7 +92,7 @@ userSchema.methods.isCorrectPassword = async function (candidatePassword) {
 
 
 //JWT token generation
-userSchema.methods.getJwtToken = function () {
+userSchema.methods.generateToken = function () {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_TIME,
     });
