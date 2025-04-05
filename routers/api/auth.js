@@ -1,9 +1,9 @@
 const express = require("express");
 const routes = express.Router();
+const {loginController, registerController} = require("../../controllers/userController");
 
-routes.get("/", (req, res) => {
-    res.json("Auth Route");
-});
+routes.get("/login", loginController)
+routes.get("/register", registerController)
 
 
 
