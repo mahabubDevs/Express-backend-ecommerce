@@ -60,14 +60,19 @@ const userSchema = new mongoose.Schema({
         type: [{type: mongoose.Schema.Types.ObjectId, ref: "Product"}],
     },
     passwordChangedAt: Date,
+
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+
+    verificationToken: String,
+    verificationTokenExpire: Date,
 
 
 },
 {
     timestamps: true,
     });
+
 
 // Hash password before saving to database
 userSchema.pre("save", async function (next) {
@@ -77,10 +82,20 @@ userSchema.pre("save", async function (next) {
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
+
 // Compare password
 userSchema.methods.isCorrectPassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
+
+
+//JWT token generation
+userSchema.methods.getJwtToken = function () {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES_TIME,
+    });
+};
+
 // Generate password reset token
 userSchema.methods.getResetPasswordToken = function () {
     // Generate token
@@ -93,6 +108,20 @@ userSchema.methods.getResetPasswordToken = function () {
     this.resetPasswordExpire = Date.now() + 30 * 60 * 1000; // 30 minutes
     return resetToken;
 };
+
+//Email verification token
+userSchema.methods.getVerificationToken = function () {
+    // Generate token
+    const verificationToken = crypto.randomBytes(20).toString("hex");
+    // Hash token and set to verificationToken field
+    this.verificationToken = crypto
+        .createHash("sha256")
+        .update(verificationToken)
+        .digest("hex");
+    this.verificationTokenExpire = Date.now() + 30 * 60 * 1000; // 30 minutes
+    return verificationToken;
+};
+
 
 module.exports = mongoose.model("User", userSchema);
 
