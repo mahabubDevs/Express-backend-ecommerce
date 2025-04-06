@@ -32,8 +32,12 @@ const userSchema = new mongoose.Schema({
     mobile: {
         type: String,
         required: [true, "Please provide your mobile number"],
-        unique: true,
+        // unique: true,
         trim: true,
+    },
+    refreshToken: {
+        type: String,
+        default: "",
     },
     password: {
         type: String,
